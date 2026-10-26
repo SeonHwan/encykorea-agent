@@ -1,0 +1,26 @@
+[project]
+name = "encykorea-agent"
+version = "0.1.0"
+# 3.13만 허용. 상한이 없으면 uv.lock에 3.14·3.15용 파일까지 기록되고,
+# .python-version을 실수로 바꿔도 오류 없이 다른 버전으로 넘어간다.
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "anthropic>=1.13.0",
+    "bitsandbytes>=0.50.2",
+    "flagembedding>=1.4.2",
+    "openai>=3.30.0",
+    "python-dotenv>=1.2.4",
+    "qdrant-client>=1.19.1",
+    "tokenizers>=0.23.3",
+    "torch==2.14.1",
+]
+
+# PyTorch CUDA 13.0 빌드 저장소 (RTX 5060 = compute capability 12.0 포함).
+# explicit = true: 아래 sources에서 지정한 패키지만 여기서 받고, 나머지는 PyPI에서 받는다.
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu130" }]

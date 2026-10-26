@@ -1,0 +1,29 @@
+# 실행: infra/ 폴더에서 `docker compose up -d`
+
+# 프로젝트 이름. 볼륨·네트워크 이름 앞에 붙는다 (예: encykorea_qdrant_storage).
+# 적지 않으면 폴더 이름(infra)이 붙는다.
+name: encykorea
+
+# 볼륨 선언. 아래 services에서 쓰는 이름과 같아야 한다.
+# `docker compose down`은 볼륨을 남기고, `down -v`는 볼륨까지 지운다.
+volumes:
+  qdrant_storage:
+
+services:
+  qdrant:
+    # 버전 고정 (latest 금지). 받는 날마다 서버가 달라지면 측정을 비교할 수 없다.
+    # GPU 인덱싱 이미지(-gpu-nvidia)는 Vulkan이 필요해 WSL2에서 쓰지 않는다.
+    image: qdrant/qdrant:v1.19.2
+
+    # Docker가 시작될 때(WSL 재접속 등) 자동으로 다시 켠다. 직접 stop한 경우는 제외.
+    restart: unless-stopped
+
+    ports:
+      # 127.0.0.1에만 연다. 인증 없는 서버가 같은 네트워크의 다른 PC에 노출되지 않게.
+      # 6333: REST API + 대시보드. 6334(gRPC)는 필요해지면 연다.
+      - "127.0.0.1:6333:6333"
+
+    volumes:
+      # 컬렉션 데이터를 이름 붙은 볼륨에 둔다. 컨테이너를 지워도 남는다.
+      # /qdrant/storage는 Qdrant 기본 저장 경로라 바꾸지 않는다.
+      - qdrant_storage:/qdrant/storage
